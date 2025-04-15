@@ -5,6 +5,10 @@ import board.bbs.entity.BoardEntity;
 import board.bbs.repository.BoardRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -73,5 +77,17 @@ public class BoardService {
 
     public void delete(Long id) {
         boardRepository.deleteById(id);
+    }
+
+    public Page<BoardDTO> paging(Pageable pageable) {
+
+        int page= pageable.getPageNumber()-1;
+        int pageLimit=3;
+
+        Page<BoardEntity> boardEntities= boardRepository.findAll(PageRequest.of(page,pageLimit, Sort.by(Sort.Direction.DESC,"id")));
+
+        Page<BoardDTO> boardDTOS=boardEntities.map(board->new BoardDTO(board.getId(),board.getBoardWriter(),board.getBoardTitle(),board.getBoardHits(),board.getCreatedTime()));
+
+        return boardDTOS;
     }
 }
